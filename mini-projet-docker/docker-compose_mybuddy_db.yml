@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  paymybuddy-db:
+    image: mysql:8.0.33       # version standard (Debian), compatible CPU
+    container_name: paymybuddy-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: paymybuddy
+      MYSQL_USER: paymybuddy_user
+      MYSQL_PASSWORD: supersecret
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./initdb:/docker-entrypoint-initdb.d   # scripts d'initialisation si tu en as
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  paymybuddy-backend:
+    build: .
+    container_name: paymybuddy-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://paymybuddy-db:3306/paymybuddy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: paymybuddy_user
+      SPRING_DATASOURCE_PASSWORD: supersecret
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+    depends_on:
+      paymybuddy-db:
+        condition: service_healthy
+
+volumes:
+  db-data:
