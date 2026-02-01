@@ -1,41 +1,66 @@
-version: "3.9"
+version: "3.9"  # Docker Compose file format version
 
 services:
+  # =========================
+  # MySQL Database Service
+  # =========================
   paymybuddy-db:
-    image: mysql:8.0.33       # version standard (Debian), compatible CPU
+    image: mysql:8.0.33                # Official MySQL image (Debian-based)
     container_name: paymybuddy-db
-    restart: unless-stopped
+    restart: unless-stopped            # Restart unless manually stopped
+
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: paymybuddy
-      MYSQL_USER: paymybuddy_user
-      MYSQL_PASSWORD: supersecret
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}  # Root password (from .env)
+      MYSQL_DATABASE: ${MYSQL_DATABASE}            # Database name (from .env)
+      MYSQL_USER: ${MYSQL_USER}                    # Application DB user
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}            # Application DB password
+
     ports:
-      - "3306:3306"
+      - "${MYSQL_PORT}:3306"            # Map MySQL port from .env to container
+
     volumes:
-      - db-data:/var/lib/mysql
-      - ./initdb:/docker-entrypoint-initdb.d   # scripts d'initialisation si tu en as
+      - db-data:/var/lib/mysql          # Persistent storage for MySQL data
+      - ./initdb:/docker-entrypoint-initdb.d
+        # Optional SQL initialization scripts (executed at first startup)
+
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+        # Checks if MySQL is ready to accept connections
+      interval: 10s                     # Time between health checks
+      timeout: 5s                       # Health check timeout
+      retries: 5                        # Retries before marking as unhealthy
 
+  # =========================
+  # Backend Service (Spring Boot)
+  # =========================
   paymybuddy-backend:
-    build: .
+    build: .                            # Build image from local Dockerfile
     container_name: paymybuddy-backend
     restart: unless-stopped
+
     ports:
-      - "8080:8080"
+      - "${BACKEND_PORT}:8080"          # Expose backend port using .env value
+
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://paymybuddy-db:3306/paymybuddy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: paymybuddy_user
-      SPRING_DATASOURCE_PASSWORD: supersecret
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_JPA_SHOW_SQL: "true"
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+        # JDBC URL to connect to the MySQL container
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+        # Reuse MySQL application user
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+        # Reuse MySQL application password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO}
+        # Hibernate schema management strategy
+      SPRING_JPA_SHOW_SQL: ${SPRING_JPA_SHOW_SQL}
+        # Enable SQL logging
+
     depends_on:
       paymybuddy-db:
         condition: service_healthy
+        # Start backend only when MySQL is healthy
 
+# =========================
+# Volumes
+# =========================
 volumes:
   db-data:
+    # Named volume to persist MySQL data across container restarts
