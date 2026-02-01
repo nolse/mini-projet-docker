@@ -1,5 +1,5 @@
-![CONTAINERS.png](screenshots/CONTAINERS.png)
-![LOGS_PAYMYBUDDY-BACKEND.png](screenshots/LOGS_PAYMYBUDDY-BACKEND.png)
+![CONTAINERS.png](./CONTAINERS.png)
+![LOGS_PAYMYBUDDY-BACKEND.png](LOGS_PAYMYBUDDY-BACKEND.png)
 ![DOCKER_IMAGES.png](screenshots/DOCKER_IMAGES.png)
 ![CURL_PAYMYBUDDY.png](screenshots/CURL_PAYMYBUDDY.png)
 ![DockerCompose1.png](screenshots/DockerCompose1.png)
