@@ -125,6 +125,8 @@ MYSQL_PORT=3306
 BACKEND_PORT=8080
 REGISTRY_PORT=5000
 
+# Use the .env.example for quick start and edit it in your needs
+
 *************************
 
 # Quick Start
@@ -132,17 +134,16 @@ Start backend + DB only:
 
 docker compose -f docker-compose_mybuddy_db.yml up -d
 
-docker compose -f docker-compose_mybuddy_db.yml down  ## Stop the containers 
-
-
 Built and pushed backend image to local private registry:
 
 docker tag paymybuddy-backend localhost:5000/paymybuddy-backend
+
 docker push localhost:5000/paymybuddy-backend
 
 Verified image in registry:
 
 curl http://localhost:5000/v2/_catalog
+
 curl http://localhost:5000/v2/paymybuddy-backend/tags/list
 
 Full Start (with local Docker registry)
