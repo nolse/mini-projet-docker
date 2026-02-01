@@ -106,14 +106,6 @@ You need to push your built images to a private Docker registry and deploy the i
 2. Deploy a private Docker registry.
 3. Push your images to the registry and use them in `docker-compose.yml`.
 
-├─ docker-compose_mybuddy_db.yml          # Backend + DB (simple)
-├─ docker-compose_mybuddy_db_registry.yml     # Backend + DB + local registry
-├─ Dockerfile                      # Backend Spring Boot
-├─ .env                            # Variables partagées
-├─ initdb/                         # Scripts SQL d'initialisation facultatifs
-├─ target/                         # Contient paymybuddy.jar (après build Maven/Gradle)
-├─ README.md                       # Documentation / instructions
-
 # MySQL configuration
 
 MYSQL_ROOT_PASSWORD=rootpassword
