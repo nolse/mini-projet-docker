@@ -98,11 +98,10 @@ Key features:
 
 ---
 
-## Docker Registry (4 Points)
+# Docker Registry (4 Points)
 
 You need to push your built images to a private Docker registry and deploy the images using Docker Compose.
 
-### Steps:
 1. Build the images for both backend and MySQL.
 2. Deploy a private Docker registry.
 3. Push your images to the registry and use them in `docker-compose.yml`.
@@ -136,7 +135,7 @@ REGISTRY_PORT=5000
 
 *************************
 
-## Quick Start
+# Quick Start
 Start backend + DB only:
 
 docker compose -f docker-compose_mybuddy_db.yml up -d
