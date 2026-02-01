@@ -5,20 +5,20 @@ services:
   # Database Service (MySQL)
   # -------------------------
   paymybuddy-db:
-    image: mysql:8.0.33                   # Stable MySQL version compatible with most CPUs
-    container_name: paymybuddy-db         # Container name
-    restart: unless-stopped                # Automatically restart unless explicitly stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword   # Root password
-      MYSQL_DATABASE: paymybuddy          # Database name
-      MYSQL_USER: paymybuddy_user         # Application user
-      MYSQL_PASSWORD: supersecret         # User password
+    image: mysql:8.0.33                       # Use official MySQL 8.0 image
+    container_name: paymybuddy-db             # Container name
+    restart: unless-stopped                    # Restart automatically unless explicitly stopped
+    environment:                              
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}  # Root password from .env
+      MYSQL_DATABASE: ${MYSQL_DATABASE}           # Database name from .env
+      MYSQL_USER: ${MYSQL_USER}                   # Application user from .env
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}           # User password from .env
     ports:
-      - "3306:3306"                       # Expose MySQL for local testing
+      - "${MYSQL_PORT}:3306"                     # Expose MySQL to host for testing/debug
     volumes:
-      - db-data:/var/lib/mysql             # Persistent volume to keep MySQL data
-      - ./initdb:/docker-entrypoint-initdb.d  # Optional initialization scripts
-    healthcheck:                          # Checks if the database is ready before backend starts
+      - db-data:/var/lib/mysql                   # Persist MySQL data across container restarts
+      - ./initdb:/docker-entrypoint-initdb.d    # Optional: run initialization scripts on startup
+    healthcheck:                                # Ensure DB is ready before backend starts
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
@@ -28,18 +28,18 @@ services:
   # Backend Service (Spring Boot)
   # -------------------------
   paymybuddy-backend:
-    build: .                              # Build image from Dockerfile in current directory
-    container_name: paymybuddy-backend    # Backend container name
-    restart: unless-stopped                # Automatically restart if stopped
+    build: .                                    # Build image from local Dockerfile
+    container_name: paymybuddy-backend
+    restart: unless-stopped
     ports:
-      - "8080:8080"                        # Expose backend on port 8080
-    environment:                            # Spring Boot environment variables for MySQL connection
-      SPRING_DATASOURCE_URL: jdbc:mysql://paymybuddy-db:3306/paymybuddy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: paymybuddy_user
-      SPRING_DATASOURCE_PASSWORD: supersecret
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update # Hibernate automatically creates or updates schema
-      SPRING_JPA_SHOW_SQL: "true"          # Show SQL queries in logs
-    depends_on:                             # Backend waits for DB to be healthy before starting
+      - "${BACKEND_PORT}:8080"                  # Expose backend on host
+    environment:                                # Inject Spring Boot environment variables
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO}
+      SPRING_JPA_SHOW_SQL: ${SPRING_JPA_SHOW_SQL}
+    depends_on:                                 # Ensure DB is healthy before starting backend
       paymybuddy-db:
         condition: service_healthy
 
@@ -47,17 +47,17 @@ services:
   # Local Docker Registry
   # -------------------------
   paymybuddy-registry:
-    image: registry:2                      # Official Docker Registry image
+    image: registry:2                           # Official Docker Registry image
     container_name: paymybuddy-registry
     restart: unless-stopped
     ports:
-      - "5000:5000"                        # Port to access local registry
+      - "${REGISTRY_PORT}:5000"                 # Expose registry API on host
     volumes:
-      - registry-data:/var/lib/registry    # Persistent storage for pushed images
+      - registry-data:/var/lib/registry         # Persist registry storage across restarts
 
 # -------------------------
 # Persistent Volumes
 # -------------------------
 volumes:
-  db-data:                                  # Keep MySQL data between restarts
-  registry-data:                            # Keep images in the local registry
+  db-data:                                      # MySQL data volume
+  registry-data:                                # Registry storage volume
