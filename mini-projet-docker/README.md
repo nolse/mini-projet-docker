@@ -109,19 +109,67 @@ You need to push your built images to a private Docker registry and deploy the i
 
 ---
 
-## Delivery (4 Points)
+mini-projet-docker/
+├─ docker-compose_mybuddy_db.yml          # Backend + DB (simple)
+├─ docker-compose_mybuddy_db_registry.yml     # Backend + DB + local registry
+├─ Dockerfile                      # Backend Spring Boot
+├─ .env                            # Variables partagées
+├─ initdb/                         # Scripts SQL d'initialisation facultatifs
+├─ target/                         # Contient paymybuddy.jar (après build Maven/Gradle)
+├─ README.md                       # Documentation / instructions
+└─ ... (autres fichiers du projet)
 
-For your delivery, provide the following in your repository:
+# -------------------------
+# MySQL configuration
+# -------------------------
+MYSQL_ROOT_PASSWORD=rootpassword
+MYSQL_DATABASE=paymybuddy
+MYSQL_USER=paymybuddy_user
+MYSQL_PASSWORD=supersecret
 
-- **README** with screenshots and explanations.
-- **Dockerfile** and **docker-compose.yml**.
-- **Screenshots** showing the application running.
-  
-Your delivery will be evaluated based on:
-- Quality of explanations and screenshots
-- Repository structure and clarity
+# -------------------------
+# Spring Boot configuration
+# -------------------------
+SPRING_DATASOURCE_URL=jdbc:mysql://paymybuddy-db:3306/paymybuddy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+SPRING_JPA_HIBERNATE_DDL_AUTO=update
+SPRING_JPA_SHOW_SQL=true
 
-**Good luck!**
+# -------------------------
+# Ports
+# -------------------------
+MYSQL_PORT=3306
+BACKEND_PORT=8080
+REGISTRY_PORT=5000
 
-**![](https://lh7-rt.googleusercontent.com/docsz/AD_4nXc-CjKFk4NY9yXiR1oheHsFR4YYn4HcD_0A6fgd11tHcT3p1U2RKXvIs6HflkvuLOOUzFxzxYCjDno2f1p6_q31dDE9AaUoEx1pi0Fs9ApJG2czL-88xrx3XO-oEP5ZXXsyXw0GKjA2W0A5q1Bk979SB1M?key=mLqAl_ccMoG4hHcRzSYKpw)**
+*************************
+
+## Quick Start
+Start backend + DB only:
+
+docker compose -f docker-compose_mybuddy_db.yml up -d
+
+docker compose -f docker-compose_mybuddy_db.yml down  ## Stop the containers 
+
+
+Built and pushed backend image to local private registry:
+
+docker tag paymybuddy-backend localhost:5000/paymybuddy-backend
+docker push localhost:5000/paymybuddy-backend
+
+Verified image in registry:
+
+curl http://localhost:5000/v2/_catalog
+curl http://localhost:5000/v2/paymybuddy-backend/tags/list
+
+Full Start (with local Docker registry)
+Start backend + DB + registry:
+
+docker compose -f docker-compose_mybuddy_db_registry.yml up -d
+
+Notes
+.env contains all configuration (MySQL passwords, ports, Spring Boot settings)
+Data volumes persist MySQL and registry data
+Registry API: http://localhost:5000/v2/_catalog
+
+The reults is in the file screenshots.md
 
