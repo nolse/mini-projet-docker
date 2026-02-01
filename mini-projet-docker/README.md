@@ -107,9 +107,6 @@ You need to push your built images to a private Docker registry and deploy the i
 2. Deploy a private Docker registry.
 3. Push your images to the registry and use them in `docker-compose.yml`.
 
----
-
-mini-projet-docker/
 ├─ docker-compose_mybuddy_db.yml          # Backend + DB (simple)
 ├─ docker-compose_mybuddy_db_registry.yml     # Backend + DB + local registry
 ├─ Dockerfile                      # Backend Spring Boot
@@ -117,26 +114,22 @@ mini-projet-docker/
 ├─ initdb/                         # Scripts SQL d'initialisation facultatifs
 ├─ target/                         # Contient paymybuddy.jar (après build Maven/Gradle)
 ├─ README.md                       # Documentation / instructions
-└─ ... (autres fichiers du projet)
 
-# -------------------------
 # MySQL configuration
-# -------------------------
+
 MYSQL_ROOT_PASSWORD=rootpassword
 MYSQL_DATABASE=paymybuddy
 MYSQL_USER=paymybuddy_user
 MYSQL_PASSWORD=supersecret
 
-# -------------------------
 # Spring Boot configuration
-# -------------------------
+
 SPRING_DATASOURCE_URL=jdbc:mysql://paymybuddy-db:3306/paymybuddy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
 SPRING_JPA_HIBERNATE_DDL_AUTO=update
 SPRING_JPA_SHOW_SQL=true
 
-# -------------------------
 # Ports
-# -------------------------
+
 MYSQL_PORT=3306
 BACKEND_PORT=8080
 REGISTRY_PORT=5000
@@ -172,4 +165,3 @@ Data volumes persist MySQL and registry data
 Registry API: http://localhost:5000/v2/_catalog
 
 The reults is in the file screenshots.md
-
