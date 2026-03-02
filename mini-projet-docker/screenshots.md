@@ -40,6 +40,6 @@
 #
 ![CURLFINPaymybuddy.png](screenshots/CURLFINPaymybuddy.png)
 #
-![PUSH_REGISTRY_F](screenshots/PUSH_REGISTRY_F.png)
-#
 ![EMPTY_REGISTRY_F](screenshots/EMPTY_REGISTRY_F.png)
+#
+![PUSH_REGISTRY_F](screenshots/PUSH_REGISTRY_F.png)
